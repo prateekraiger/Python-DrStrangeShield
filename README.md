@@ -8,7 +8,6 @@ A real-time hand gesture recognition system that creates magical shield effects 
 </p>  <figcaption style="align: right">YouTube URL: https://www.youtube.com/watch?v=pXJt6sXhm_w.</figcaption>
 <br>
 
-
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
 ![OpenCV](https://img.shields.io/badge/OpenCV-4.5+-green.svg)
 ![MediaPipe](https://img.shields.io/badge/MediaPipe-0.8+-orange.svg)
@@ -30,6 +29,8 @@ A real-time hand gesture recognition system that creates magical shield effects 
 
 ## ✨ Features
 
+### Core Features
+
 - **Real-time Hand Gesture Recognition**: Uses MediaPipe Holistic for accurate hand tracking
 - **Machine Learning Classification**: SVM model for gesture classification
 - **Visual Effects**: Overlays magical shield effects on detected hands
@@ -40,6 +41,16 @@ A real-time hand gesture recognition system that creates magical shield effects 
 - **Sequential Gesture Activation**: Requires a specific sequence of gestures to activate shields
 - **Configurable Parameters**: Adjustable thresholds and confidence levels
 - **Graceful Shutdown**: Clean resource management with Ctrl+C handling
+
+### 🌟 Enhanced Version Features (New!)
+
+- **🎨 Beautiful UI**: Attractive welcome screen and status overlays
+- **📸 Visual Instructions**: Shows gesture images from `images/` folder in real-time
+- **📊 Live Feedback**: Real-time gesture detection with confidence scores
+- **🆘 Interactive Help**: Press 'h' for comprehensive gesture guide
+- **🎯 Smart Guidance**: Context-aware instructions based on current state
+- **💫 Enhanced Design**: Professional-looking interface with better visual feedback
+- **🚀 Easy Launcher**: Interactive menu system for easy operation
 
 ## 🎬 Demo
 
@@ -89,60 +100,104 @@ dr-strange-shields/
 
 ## 🚀 Usage
 
-### Basic Usage
+### 🎯 Quick Start (Recommended)
 
-Run with default settings (both OpenCV window and virtual camera):
+Use the interactive launcher for the best experience:
 
 ```bash
-python shield.py
+python launcher.py
 ```
 
-### Advanced Usage
+This will show you a menu with all available options and help.
 
-#### OpenCV Window Only
+### 🌟 Enhanced Version (New!)
+
+Run the enhanced version with improved UI and visual instructions:
+
+```bash
+python shield_enhanced.py
+```
+
+**Enhanced Features:**
+
+- 🎨 Beautiful welcome screen with instructions
+- 📸 Visual gesture guides using images from `images/` folder
+- 📊 Real-time status overlay with gesture feedback
+- 🆘 Built-in help system (press 'h' during operation)
+- 🎯 Interactive gesture instructions
+- 💫 Improved visual design and user experience
+
+### Basic Usage (Original)
+
+Run with default settings (OpenCV window only):
 
 ```bash
 python shield.py --output window
 ```
 
-#### Virtual Camera Only (Headless)
+### Advanced Usage
+
+#### Enhanced Version with Different Outputs
 
 ```bash
-python main.py --output virtual
+# OpenCV Window Only (Recommended)
+python shield_enhanced.py --output window
+
+# Virtual Camera Only (Requires OBS)
+python shield_enhanced.py --output virtual
+
+# Both Window and Virtual Camera
+python shield_enhanced.py --output both
 ```
 
-#### Custom Camera
+#### Original Version
 
 ```bash
-python main.py --camera_id 1
+# OpenCV Window Only
+python shield.py --output window
+
+# Virtual Camera Only (Headless)
+python shield.py --output virtual
+
+# Custom Camera
+python shield.py --camera_id 1
 ```
 
 #### Full Configuration
 
 ```bash
-python main.py \
+python shield_enhanced.py \
   --model models/model_svm.sav \
   --threshold 0.9 \
   --det_conf 0.5 \
   --trk_conf 0.5 \
   --camera_id 0 \
   --shield effects/shield.mp4 \
-  --output both
+  --output window
 ```
 
 ### Command Line Arguments
 
-| Argument | Short | Description | Default |
-|----------|-------|-------------|---------|
-| `--model` | `-m` | Path to trained ML model file | `models/model_svm.sav` |
-| `--threshold` | `-t` | Prediction threshold (0-1) | `0.9` |
-| `--det_conf` | `-dc` | Detection confidence (0-1) | `0.5` |
-| `--trk_conf` | `-tc` | Tracking confidence (0-1) | `0.5` |
-| `--camera_id` | `-c` | Camera device ID | `0` |
-| `--shield` | `-s` | Path to shield video effect | `effects/shield.mp4` |
-| `--output` | `-o` | Output mode: `window`, `virtual`, or `both` | `both` |
+| Argument      | Short | Description                                 | Default                |
+| ------------- | ----- | ------------------------------------------- | ---------------------- |
+| `--model`     | `-m`  | Path to trained ML model file               | `models/model_svm.sav` |
+| `--threshold` | `-t`  | Prediction threshold (0-1)                  | `0.9`                  |
+| `--det_conf`  | `-dc` | Detection confidence (0-1)                  | `0.5`                  |
+| `--trk_conf`  | `-tc` | Tracking confidence (0-1)                   | `0.5`                  |
+| `--camera_id` | `-c`  | Camera device ID                            | `0`                    |
+| `--shield`    | `-s`  | Path to shield video effect                 | `effects/shield.mp4`   |
+| `--output`    | `-o`  | Output mode: `window`, `virtual`, or `both` | `both`                 |
 
 ### Controls
+
+#### Enhanced Version
+
+- **SPACE**: Start system from welcome screen
+- **H key**: Show help screen with all gesture instructions
+- **Q key**: Quit application (when OpenCV window is active)
+- **Ctrl+C**: Graceful shutdown from terminal
+
+#### Original Version
 
 - **Q key**: Quit application (when OpenCV window is active)
 - **Ctrl+C**: Graceful shutdown from terminal
@@ -152,6 +207,7 @@ python main.py \
 ### 1. Hand Detection
 
 The system uses **MediaPipe Holistic** to detect and track hand landmarks in real-time:
+
 - Detects 21 landmarks per hand
 - Tracks both left and right hands simultaneously
 - Calculates bounding boxes for each detected hand
@@ -176,6 +232,7 @@ This prevents accidental activation and adds a "magical" element to the interact
 ### 4. Visual Effects
 
 When shields are active:
+
 - Reads frames from the shield video effect
 - Removes black background (chroma keying)
 - Scales and positions shields relative to hand positions
@@ -220,20 +277,25 @@ if (prediction == 'key_1') and (pred_prob > 0.85):  # Change 0.85 to desired thr
 ### Required Files
 
 #### `utils.py`
+
 Must contain the following functions:
+
 - `mediapipe_detection(frame, model)`: Processes frame with MediaPipe
 - `get_center_lh(frame, results)`: Gets left hand bounding box
 - `get_center_rh(frame, results)`: Gets right hand bounding box
 - `points_detection_hands(results)`: Extracts hand landmarks for ML model
 
 #### `models/model_svm.sav`
+
 Pre-trained SVM model that recognizes:
+
 - `key_1`: First gesture in sequence
 - `key_2`: Second gesture in sequence
 - `key_3`: Third gesture in sequence
 - `key_4`: Deactivation gesture
 
 #### `effects/shield.mp4`
+
 Video file containing the shield effect with black background for transparency.
 
 ## 🎯 Gesture Sequence
@@ -256,15 +318,16 @@ Video file containing the shield effect with black background for transparency.
 </p>
 <br>
 
-
 ### Activation Sequence
 
 1. **KEY_1**: Perform first gesture with both hands visible
+
    - Status: 🔑1✅ 🔑2❌ 🔑3❌
-   
+
 2. **KEY_2**: Within 2 seconds, perform second gesture
+
    - Status: 🔑1✅ 🔑2✅ 🔑3❌
-   
+
 3. **KEY_3**: Within 2 seconds, perform third gesture
    - Status: 🔑1✅ 🔑2✅ 🔑3✅
    - **Shields activate!** 🛡️ ON

@@ -285,7 +285,9 @@ with mp_holistic.Holistic(min_detection_confidence=0.5,
 
             # Mostra la finestra OpenCV solo se richiesto
             if show_window:
-                cv2.imshow('Dr. Strange shields', frame)
+                # Resize frame for bigger display (1.5x larger)
+                display_frame = cv2.resize(frame, (int(width * 1.5), int(height * 1.5)))
+                cv2.imshow('Dr. Strange shields', display_frame)
 
             # Invia alla virtual camera solo se richiesto
             if use_virtual_cam and cam:
