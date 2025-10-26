@@ -1,4 +1,4 @@
-# Enhanced Dr. Strange Shield System with Improved UI
+# Improved Dr. Strange Shield System - No Blur, Better Instructions
 import cv2
 import time
 import mediapipe as mp
@@ -14,14 +14,11 @@ from pyvirtualcam import PixelFormat
 import signal
 import sys
 
-class DrStrangeShieldUI:
+class DrStrangeShieldImproved:
     def __init__(self):
         self.current_directory = os.path.dirname(os.path.realpath(__file__)).replace("\\", "/")
         self.instruction_images = {}
         self.load_instruction_images()
-        self.show_instructions = True
-        self.instruction_start_time = None
-        self.current_instruction = 0
 
     def load_instruction_images(self):
         """Load instruction images for gestures"""
@@ -39,7 +36,7 @@ class DrStrangeShieldUI:
                 img = cv2.imread(full_path)
                 if img is not None:
                     # Resize instruction images to a standard size
-                    self.instruction_images[key] = cv2.resize(img, (300, 200))
+                    self.instruction_images[key] = cv2.resize(img, (250, 180))
                 else:
                     print(f"⚠️  Warning: Could not load {path}")
             else:
@@ -61,19 +58,25 @@ class DrStrangeShieldUI:
         cv2.putText(screen, title, (title_x, 80), cv2.FONT_HERSHEY_COMPLEX, 1.2, (0, 255, 255), 3)
 
         # Subtitle
-        subtitle = "Gesture-Controlled Magic Shields"
+        subtitle = "Improved Gesture Recognition & Instructions"
         sub_size = cv2.getTextSize(subtitle, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
         sub_x = (width - sub_size[0]) // 2
         cv2.putText(screen, subtitle, (sub_x, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (100, 200, 255), 2)
 
         # Instructions
         instructions = [
-            "INSTRUCTIONS:",
+            "✨ IMPROVED FEATURES:",
             "",
-            "1. Perform KEY_1 gesture (see image)",
+            "🎯 Better Gesture Re(Lower Thresholds)",
+            "📸 Clear On-Screen Instructions",
+            "⏰ 5-Second Time Windows",
+            "🛡️ Clean View When Shields Active",
+            "",
+            "GESTURE SEQUENCE:",
+            "1. Perform KEY_1 gesture",
             "2. Quickly perform KEY_2 gesture",
             "3. Quickly perform KEY_3 gesture",
-            "4. Shields will activate!",
+            "4. Shields activate - UI disappears!",
             "5. Use KEY_4 gesture to deactivate",
             "",
             "Press SPACE to start or 'q' to quit",
@@ -83,8 +86,16 @@ class DrStrangeShieldUI:
         y_start = 180
         for i, instruction in enumerate(instructions):
             color = (255, 255, 255) if instruction else (100, 100, 100)
-            if instruction.startswith("INSTRUCTIONS:"):
+            if instruction.startswith("✨ IMPROVED FEATURES:"):
                 color = (0, 255, 0)
+                font = cv2.FONT_HERSHEY_COMPLEX
+                thickness = 2
+            elif instruction.startswith(("🎯", "📸", "⏰", "🛡️")):
+                color = (255, 200, 100)
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                thickness = 1
+            elif instruction.startswith("GESTURE SEQUENCE:"):
+                color = (0, 255, 255)
                 font = cv2.FONT_HERSHEY_COMPLEX
                 thickness = 2
             elif instruction.startswith(("1.", "2.", "3.", "4.", "5.")):
@@ -95,7 +106,7 @@ class DrStrangeShieldUI:
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 thickness = 1
 
-            cv2.putText(screen, instruction, (50, y_start + i * 30), font, 0.6, color, thickness)
+            cv2.putText(screen, instruction, (50, y_start + i * 25), font, 0.5, color, thickness)
 
         # Add welcome image if available
         if 'welcome' in self.instruction_images:
@@ -109,27 +120,14 @@ class DrStrangeShieldUI:
         return screen
 
     def create_status_overlay(self, frame, KEY_1, KEY_2, KEY_3, SHIELDS, current_gesture=None, confidence=0.0):
-        """Create an attractive status overlay"""
+        """Create status overlay - only when shields are inactive"""
         height, width = frame.shape[:2]
 
         if SHIELDS:
-            # Minimal overlay when shields are active - just show shield status
-            overlay = frame.copy()
-            panel_height = 60
-            cv2.rectangle(overlay, (0, 0), (width, panel_height), (0, 0, 0), -1)
-            cv2.addWeighted(overlay, 0.6, frame, 0.4, 0, frame)
-
-            # Shield status with magical effect
-            shield_text = "🛡️ SHIELDS ACTIVE 🛡️"
-            cv2.putText(frame, shield_text, (20, 35), cv2.FONT_HERSHEY_COMPLEX, 0.9, (0, 255, 100), 2)
-
-            # Add magical glow effect
-            cv2.putText(frame, shield_text, (19, 34), cv2.FONT_HERSHEY_COMPLEX, 0.9, (100, 255, 200), 1)
-
-            # Deactivation hint (subtle)
-            cv2.putText(frame, "Use KEY_4 gesture to deactivate", (width-280, 35),
+            # Completely clean view when shields are active - no UI at all!
+            # Only show minimal help text at bottom
+            cv2.putText(frame, "Press 'h' for help, 'q' to quit", (width-250, height-20),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (150, 150, 150), 1)
-
         else:
             # Full overlay when shields are inactive - show progress
             overlay = frame.copy()
@@ -138,8 +136,8 @@ class DrStrangeShieldUI:
             cv2.addWeighted(overlay, 0.7, frame, 0.3, 0, frame)
 
             # Shield status
-            shield_text = "SHIELDS: INACTIVE"
-            cv2.putText(frame, shield_text, (20, 35), cv2.FONT_HERSHEY_COMPLEX, 0.8, (0, 100, 255), 2)
+            shield_text = "SHIELDS: INACTIVE - Follow the sequence!"
+            cv2.putText(frame, shield_text, (20, 35), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 150, 255), 2)
 
             # Key progress with better visual feedback
             key_status = [
@@ -159,41 +157,80 @@ class DrStrangeShieldUI:
                     symbol = "○"
                 cv2.putText(frame, f"{symbol} {key_name}", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
 
-            # Current gesture detection
+            # Current gesture detection with confidence
             if current_gesture and confidence > 0.5:
                 gesture_text = f"Detected: {current_gesture.upper()} ({confidence:.1%})"
-                cv2.putText(frame, gesture_text, (20, 95), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
+                color = (0, 255, 0) if confidence > 0.75 else (255, 255, 0)
+                cv2.putText(frame, gesture_text, (20, 95), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
 
-        # Help text (always visible but subtle)
-        cv2.putText(frame, "Press 'h' for help, 'q' to quit", (width-250, height-20),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1)
+            # Help text
+            cv2.putText(frame, "Press 'h' for help, 'q' to quit", (width-250, height-20),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1)
 
         return frame
 
-    def show_gesture_instruction(self, frame, gesture_key):
-        """Show instruction for specific gesture"""
+    def show_gesture_instruction(self, frame, gesture_key, next_step_text=""):
+        """Show instruction for specific gesture with next step info"""
         if gesture_key in self.instruction_images:
             height, width = frame.shape[:2]
             img = self.instruction_images[gesture_key]
             img_h, img_w = img.shape[:2]
 
-            # Position instruction image
+            # Position instruction image (right side)
             x_pos = width - img_w - 20
             y_pos = 140
 
             if x_pos > 0 and y_pos + img_h < height:
                 # Add semi-transparent background
                 overlay = frame.copy()
-                cv2.rectangle(overlay, (x_pos-10, y_pos-10), (x_pos+img_w+10, y_pos+img_h+10), (0, 0, 0), -1)
-                cv2.addWeighted(overlay, 0.7, frame, 0.3, 0, frame)
+                cv2.rectangle(overlay, (x_pos-10, y_pos-30), (x_pos+img_w+10, y_pos+img_h+20), (0, 0, 0), -1)
+                cv2.addWeighted(overlay, 0.8, frame, 0.2, 0, frame)
 
                 # Add instruction image
                 frame[y_pos:y_pos+img_h, x_pos:x_pos+img_w] = img
 
-                # Add instruction text
+                # Add instruction text above image
                 instruction_text = f"Perform {gesture_key.upper()} gesture"
-                cv2.putText(frame, instruction_text, (x_pos, y_pos-15),
+                cv2.putText(frame, instruction_text, (x_pos, y_pos-10),
                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
+
+                # Add next step text below image
+                if next_step_text:
+                    cv2.putText(frame, next_step_text, (x_pos, y_pos+img_h+15),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+
+        return frame
+
+    def add_shield_effects(self, frame, SHIELDS):
+        """Add subtle magical effects when shields are active"""
+        if SHIELDS:
+            height, width = frame.shape[:2]
+
+            # Add subtle magical border glow
+            overlay = frame.copy()
+
+            # Create a subtle glowing border
+            border_thickness = 4
+            glow_color = (0, 255, 150)  # Magical green
+
+            # Top border
+            cv2.rectangle(overlay, (0, 0), (width, border_thickness), glow_color, -1)
+            # Bottom border
+            cv2.rectangle(overlay, (0, height-border_thickness), (width, height), glow_color, -1)
+            # Left border
+            cv2.rectangle(overlay, (0, 0), (border_thickness, height), glow_color, -1)
+            # Right border
+            cv2.rectangle(overlay, (width-border_thickness, 0), (width, height), glow_color, -1)
+
+            # Blend the glow effect
+            cv2.addWeighted(overlay, 0.4, frame, 0.6, 0, frame)
+
+            # Add magical particles effect (optional)
+            import random
+            for _ in range(5):
+                x = random.randint(0, width)
+                y = random.randint(0, height)
+                cv2.circle(frame, (x, y), 2, (100, 255, 200), -1)
 
         return frame
 
@@ -207,16 +244,16 @@ class DrStrangeShieldUI:
             screen[i, :] = [intensity//3, intensity//2, intensity]
 
         # Title
-        cv2.putText(screen, "GESTURE GUIDE", (width//2-120, 50),
+        cv2.putText(screen, "GESTURE GUIDE - IMPROVED VERSION", (width//2-220, 50),
                    cv2.FONT_HERSHEY_COMPLEX, 1.0, (0, 255, 255), 2)
 
         # Show all gesture images in a grid
         gestures = ['key_1', 'key_2', 'key_3', 'key_4']
         descriptions = [
-            "KEY 1: First gesture in sequence",
-            "KEY 2: Second gesture (after KEY 1)",
-            "KEY 3: Final activation gesture",
-            "KEY 4: Deactivation gesture"
+            "KEY 1: First gesture (75% confidence needed)",
+            "KEY 2: Second gesture (70% confidence needed)",
+            "KEY 3: Final activation (70% confidence needed)",
+            "KEY 4: Deactivation gesture (70% confidence needed)"
         ]
 
         y_start = 100
@@ -228,23 +265,25 @@ class DrStrangeShieldUI:
 
             # Add gesture image if available
             if gesture in self.instruction_images:
-                img = cv2.resize(self.instruction_images[gesture], (200, 100))
+                img = cv2.resize(self.instruction_images[gesture], (180, 120))
                 img_h, img_w = img.shape[:2]
                 x_pos = width - img_w - 50
                 screen[y_pos+10:y_pos+10+img_h, x_pos:x_pos+img_w] = img
 
         # Instructions
+        cv2.putText(screen, "✨ Improved: Lower thresholds, 5-second windows, better feedback!", (50, height-60),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (100, 255, 100), 1)
         cv2.putText(screen, "Press any key to return", (width//2-100, height-30),
                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 200, 200), 1)
 
         return screen
 
-# Enhanced main function with UI integration
+# Main function
 def main():
     # Initialize UI
-    ui = DrStrangeShieldUI()
+    ui = DrStrangeShieldImproved()
 
-    # Parse arguments (keeping original functionality)
+    # Parse arguments
     parser = ArgumentParser()
     parser.add_argument("-m", "--model", dest="ML_model", default='models/model_svm.sav',
                         help="PATH of model FILE.", metavar="FILE")
@@ -315,6 +354,11 @@ def main():
     SHIELDS = False
     scale = 1.5
 
+    # Initialize timing variables
+    t1 = None
+    t2 = None
+    t3 = None
+
     # Get camera dimensions
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -330,13 +374,14 @@ def main():
     # Show welcome screen
     if show_window:
         welcome_screen = ui.create_welcome_screen(int(width * 1.5), int(height * 1.5))
-        cv2.imshow('Dr. Strange Shield System', welcome_screen)
+        cv2.imshow('Dr. Strange Shield System - Improved', welcome_screen)
 
         # Wait for user to start
         print("\n" + "="*60)
-        print("🛡️  DR. STRANGE SHIELD SYSTEM - ENHANCED UI")
+        print("🛡️  DR. STRANGE SHIELD SYSTEM - IMPROVED VERSION")
         print("="*60)
         print("📺 Welcome screen displayed. Press SPACE to start or 'q' to quit")
+        print("🎯 Improved: Lower thresholds, better instructions, clean shield view")
         print("="*60)
 
         while True:
@@ -361,7 +406,7 @@ def main():
             use_virtual_cam = False
             cam = None
 
-    print("🚀 System Ready! Starting gesture detection...")
+    print("🚀 System Ready! Starting improved gesture detection...")
     print("📋 Gesture Sequence: KEY_1 → KEY_2 → KEY_3 (activate shields)")
     print("📋 Shield Deactivation: KEY_4")
     print("⌨️  Press 'h' for help, 'q' to quit")
@@ -382,11 +427,14 @@ def main():
                 if not ret:
                     break
 
+                # Flip frame horizontally for selfie view
+                frame = cv2.flip(frame, 1)
+
                 # Handle help screen
                 if show_help:
                     help_screen = ui.create_help_screen(int(width * 1.5), int(height * 1.5))
                     if show_window:
-                        cv2.imshow('Dr. Strange Shield System', help_screen)
+                        cv2.imshow('Dr. Strange Shield System - Improved', help_screen)
 
                     key = cv2.waitKey(1) & 0xFF
                     if key != 255:  # Any key pressed
@@ -488,7 +536,7 @@ def main():
                     frame_shield = cv2.addWeighted(frame[f_start_h:f_stop_h,f_start_w:f_stop_w], alpha, res3, 1, 1, frame)
                     frame[f_start_h:f_stop_h,f_start_w:f_stop_w] = frame_shield
 
-                # Gesture recognition logic (keeping original)
+                # Gesture recognition logic with improved thresholds
                 current_gesture = None
                 gesture_confidence = 0.0
 
@@ -498,11 +546,15 @@ def main():
                     current_gesture = prediction
                     gesture_confidence = pred_prob
 
-                    if (prediction == 'key_4') and (pred_prob > 0.85):
+                    if (prediction == 'key_4') and (pred_prob > 0.70):
                         KEY_1 = False
                         KEY_2 = False
                         KEY_3 = False
                         SHIELDS = False
+                        t1 = None
+                        t2 = None
+                        t3 = None
+                        print(f"\n🛡️ SHIELDS DEACTIVATED! ({pred_prob:.2f}) Perform KEY_1 to start sequence again.")
 
                 elif xMinL and xMinR and (not SHIELDS):
                     prediction = model.predict(np.array([points_detection_hands(results)]))[0]
@@ -510,44 +562,67 @@ def main():
                     current_gesture = prediction
                     gesture_confidence = pred_prob
 
-                    if (prediction == 'key_1') and (pred_prob > 0.85):
+                    # Debug output for gesture detection
+                    if pred_prob > 0.6:  # Show when confidence is decent
+                        print(f"\r🎯 Detected: {prediction} ({pred_prob:.2f}) | Status: K1:{KEY_1} K2:{KEY_2} K3:{KEY_3}", end="", flush=True)
+
+                    if (prediction == 'key_1') and (pred_prob > 0.75) and not KEY_1:
                         t1 = datetime.now()
                         KEY_1 = True
-                    elif (prediction == 'key_2') and (pred_prob > 0.85) and KEY_1:
+                        KEY_2 = False  # Reset subsequent keys
+                        KEY_3 = False
+                        print(f"\n🔑 KEY_1 activated! ({pred_prob:.2f}) Perform KEY_2 within 5 seconds...")
+
+                    elif (prediction == 'key_2') and (pred_prob > 0.70) and KEY_1 and not KEY_2 and t1:
                         t2 = datetime.now()
-                        if t1 + timedelta(seconds=2) > t2:
+                        time_diff = (t2 - t1).total_seconds()
+                        if time_diff <= 5:  # 5 seconds for easier use
                             KEY_2 = True
+                            KEY_3 = False  # Reset KEY_3
+                            print(f"\n🔑 KEY_2 activated! ({pred_prob:.2f}) ({time_diff:.1f}s) Perform KEY_3 within 5 seconds...")
                         else:
                             KEY_1 = False
                             KEY_2 = False
-                    elif (prediction == 'key_3') and (pred_prob > 0.85) and KEY_1 and KEY_2:
+                            KEY_3 = False
+                            t1 = None
+                            print(f"\n⏰ Too slow! ({time_diff:.1f}s) Sequence reset. Start with KEY_1 again.")
+
+                    elif (prediction == 'key_3') and (pred_prob > 0.70) and KEY_1 and KEY_2 and not KEY_3 and t2:
                         t3 = datetime.now()
-                        if t2 + timedelta(seconds=2) > t3:
+                        time_diff = (t3 - t2).total_seconds()
+                        if time_diff <= 5:  # 5 seconds
                             KEY_3 = True
                             SHIELDS = True
+                            print(f"\n🛡️ SHIELDS ACTIVATED! ({pred_prob:.2f}) Use KEY_4 to deactivate.")
                         else:
                             KEY_1 = False
                             KEY_2 = False
+                            KEY_3 = False
+                            t1 = None
+                            t2 = None
+                            print(f"\n⏰ Too slow! ({time_diff:.1f}s) Sequence reset. Start with KEY_1 again.")
 
-                # Add UI overlays
+                # Add magical effects when shields are active
+                frame = ui.add_shield_effects(frame, SHIELDS)
+
+                # Add UI overlays (only when shields inactive)
                 frame = ui.create_status_overlay(frame, KEY_1, KEY_2, KEY_3, SHIELDS, current_gesture, gesture_confidence)
 
-                # Show gesture instructions
+                # Show gesture instructions only when shields are inactive
                 if not SHIELDS:
                     if not KEY_1:
-                        frame = ui.show_gesture_instruction(frame, 'key_1')
+                        frame = ui.show_gesture_instruction(frame, 'key_1', "Start the sequence here")
                     elif not KEY_2:
-                        frame = ui.show_gesture_instruction(frame, 'key_2')
+                        frame = ui.show_gesture_instruction(frame, 'key_2', "Second step - be quick!")
                     elif not KEY_3:
-                        frame = ui.show_gesture_instruction(frame, 'key_3')
-                else:
-                    frame = ui.show_gesture_instruction(frame, 'key_4')
+                        frame = ui.show_gesture_instruction(frame, 'key_3', "Final step - activate shields!")
+                # When shields are active - completely clean view!
 
                 # Display frame
                 if show_window:
                     # Resize frame for bigger display
                     display_frame = cv2.resize(frame, (int(width * 1.5), int(height * 1.5)))
-                    cv2.imshow('Dr. Strange Shield System', display_frame)
+                    cv2.imshow('Dr. Strange Shield System - Improved', display_frame)
 
                 # Send to virtual camera
                 if use_virtual_cam and cam:

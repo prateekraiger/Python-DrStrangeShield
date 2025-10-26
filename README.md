@@ -1,11 +1,11 @@
 # 🛡️ Dr. Strange Shields - Gesture Control System
 
-A real-time hand gesture recognition system that creates magical shield effects inspired by Doctor Strange, using computer vision and machine learning.
+A real-time hand gesture recognition system that creates magical shield effects inspired by Doctor Strange, with **background blur** like Zoom/Teams!
 
 <br>
 <p align="center">
   <img width="640"  src="./images/example.png">
-</p>  <figcaption style="align: right">YouTube URL: https://www.youtube.com/watch?v=pXJt6sXhm_w.</figcaption>
+</p>
 <br>
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
@@ -13,294 +13,50 @@ A real-time hand gesture recognition system that creates magical shield effects 
 ![MediaPipe](https://img.shields.io/badge/MediaPipe-0.8+-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-## 📋 Table of Contents
+## 🚀 Quick Start (3 Steps!)
 
-- [Features](#-features)
-- [Demo](#-demo)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [How It Works](#-how-it-works)
-- [Configuration](#-configuration)
-- [Project Structure](#-project-structure)
-- [Gesture Sequence](#-gesture-sequence)
-- [Troubleshooting](#-troubleshooting)
-- [Contributing](#-contributing)
-- [License](#-license)
-
-## ✨ Features
-
-### Core Features
-
-- **Real-time Hand Gesture Recognition**: Uses MediaPipe Holistic for accurate hand tracking
-- **Machine Learning Classification**: SVM model for gesture classification
-- **Visual Effects**: Overlays magical shield effects on detected hands
-- **Multiple Output Modes**:
-  - OpenCV window display
-  - Virtual camera output (for use in video calls, streaming, etc.)
-  - Both simultaneously
-- **Sequential Gesture Activation**: Requires a specific sequence of gestures to activate shields
-- **Configurable Parameters**: Adjustable thresholds and confidence levels
-- **Graceful Shutdown**: Clean resource management with Ctrl+C handling
-
-### 🌟 Enhanced Version Features (New!)
-
-- **🎨 Beautiful UI**: Attractive welcome screen and status overlays
-- **📸 Visual Instructions**: Shows gesture images from `images/` folder in real-time
-- **📊 Live Feedback**: Real-time gesture detection with confidence scores
-- **🆘 Interactive Help**: Press 'h' for comprehensive gesture guide
-- **🎯 Smart Guidance**: Context-aware instructions based on current state
-- **💫 Enhanced Design**: Professional-looking interface with better visual feedback
-- **🚀 Easy Launcher**: Interactive menu system for easy operation
-
-## 🎬 Demo
-
-The system detects hand gestures in real-time and overlays shield effects when the correct sequence is performed:
-
-1. Perform gesture KEY_1
-2. Within 2 seconds, perform gesture KEY_2
-3. Within 2 seconds, perform gesture KEY_3
-4. Shields activate! ✨
-5. Perform gesture KEY_4 to deactivate
-
-## 🔧 Installation
-
-### Prerequisites
-
-- Python 3.9 or higher
-- Webcam or camera device
-- (Optional) Virtual camera software if using virtual camera output
-
-### Install Dependencies
+### 1️⃣ Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Clone the Repository
+### 2️⃣ Run the System
 
 ```bash
-git clone git@github.com:giova86/Python-DrStrangeShield.git
-cd dr-strange-shields
-```
-
-### Project Structure
-
-Ensure your project has the following structure:
-
-```
-dr-strange-shields/
-├── main.py                    # Main application script
-├── utils.py                   # Utility functions for MediaPipe
-├── models/
-│   └── model_svm.sav         # Trained SVM model
-├── effects/
-│   └── shield.mp4            # Shield video effect
-└── README.md
-```
-
-## 🚀 Usage
-
-### 🎯 Quick Start (Recommended)
-
-Use the interactive launcher for the best experience:
-
-```bash
+# Easy launcher with menu (Recommended)
 python launcher.py
+
+# OR directly run with background blur
+python shield_with_blur.py
 ```
 
-This will show you a menu with all available options and help.
+### 3️⃣ Perform Gestures
 
-### 🌟 Enhanced Version (New!)
+1. **KEY_1** → **KEY_2** → **KEY_3** = Activate shields! 🛡️
+2. **KEY_4** = Deactivate shields
 
-Run the enhanced version with improved UI and visual instructions:
+**That's it!** ✨
 
-```bash
-python shield_enhanced.py
-```
+---
 
-**Enhanced Features:**
+## 🎯 Available Versions
 
-- 🎨 Beautiful welcome screen with instructions
-- 📸 Visual gesture guides using images from `images/` folder
-- 📊 Real-time status overlay with gesture feedback
-- 🆘 Built-in help system (press 'h' during operation)
-- 🎯 Interactive gesture instructions
-- 💫 Improved visual design and user experience
+| Version                | Command                      | Features                        |
+| ---------------------- | ---------------------------- | ------------------------------- |
+| 🎭 **Background Blur** | `python shield_with_blur.py` | Zoom-like blur + shields        |
+| ✨ **Enhanced UI**     | `python shield_enhanced.py`  | Better interface + instructions |
+| 🔧 **Original**        | `python shield.py -o window` | Basic version                   |
+| 📋 **Launcher**        | `python launcher.py`         | Interactive menu                |
 
-### Basic Usage (Original)
-
-Run with default settings (OpenCV window only):
-
-```bash
-python shield.py --output window
-```
-
-### Advanced Usage
-
-#### Enhanced Version with Different Outputs
-
-```bash
-# OpenCV Window Only (Recommended)
-python shield_enhanced.py --output window
-
-# Virtual Camera Only (Requires OBS)
-python shield_enhanced.py --output virtual
-
-# Both Window and Virtual Camera
-python shield_enhanced.py --output both
-```
-
-#### Original Version
-
-```bash
-# OpenCV Window Only
-python shield.py --output window
-
-# Virtual Camera Only (Headless)
-python shield.py --output virtual
-
-# Custom Camera
-python shield.py --camera_id 1
-```
-
-#### Full Configuration
-
-```bash
-python shield_enhanced.py \
-  --model models/model_svm.sav \
-  --threshold 0.9 \
-  --det_conf 0.5 \
-  --trk_conf 0.5 \
-  --camera_id 0 \
-  --shield effects/shield.mp4 \
-  --output window
-```
-
-### Command Line Arguments
-
-| Argument      | Short | Description                                 | Default                |
-| ------------- | ----- | ------------------------------------------- | ---------------------- |
-| `--model`     | `-m`  | Path to trained ML model file               | `models/model_svm.sav` |
-| `--threshold` | `-t`  | Prediction threshold (0-1)                  | `0.9`                  |
-| `--det_conf`  | `-dc` | Detection confidence (0-1)                  | `0.5`                  |
-| `--trk_conf`  | `-tc` | Tracking confidence (0-1)                   | `0.5`                  |
-| `--camera_id` | `-c`  | Camera device ID                            | `0`                    |
-| `--shield`    | `-s`  | Path to shield video effect                 | `effects/shield.mp4`   |
-| `--output`    | `-o`  | Output mode: `window`, `virtual`, or `both` | `both`                 |
-
-### Controls
-
-#### Enhanced Version
+## 🎮 Controls
 
 - **SPACE**: Start system from welcome screen
-- **H key**: Show help screen with all gesture instructions
-- **Q key**: Quit application (when OpenCV window is active)
-- **Ctrl+C**: Graceful shutdown from terminal
+- **H**: Show help with gesture images
+- **Q**: Quit application
+- **Ctrl+C**: Emergency exit
 
-#### Original Version
-
-- **Q key**: Quit application (when OpenCV window is active)
-- **Ctrl+C**: Graceful shutdown from terminal
-
-## 🧠 How It Works
-
-### 1. Hand Detection
-
-The system uses **MediaPipe Holistic** to detect and track hand landmarks in real-time:
-
-- Detects 21 landmarks per hand
-- Tracks both left and right hands simultaneously
-- Calculates bounding boxes for each detected hand
-
-### 2. Gesture Classification
-
-- Extracts normalized hand landmark coordinates
-- Feeds coordinates to a pre-trained **SVM (Support Vector Machine)** model
-- Classifies gestures with probability scores
-- Requires high confidence (>0.85 by default) for gesture recognition
-
-### 3. Sequential Activation
-
-The shield system requires a specific sequence:
-
-```
-KEY_1 → (within 2s) → KEY_2 → (within 2s) → KEY_3 → SHIELDS ACTIVATED
-```
-
-This prevents accidental activation and adds a "magical" element to the interaction.
-
-### 4. Visual Effects
-
-When shields are active:
-
-- Reads frames from the shield video effect
-- Removes black background (chroma keying)
-- Scales and positions shields relative to hand positions
-- Blends shield effect with camera feed using alpha blending
-- Adjusts shield size based on hand bounding box dimensions (scaled by 1.5x)
-
-### 5. Output Modes
-
-- **Window Mode**: Displays in OpenCV window
-- **Virtual Camera**: Outputs to virtual camera device (for OBS, Zoom, Teams, etc.)
-- **Both**: Simultaneous output to both
-
-## ⚙️ Configuration
-
-### Adjusting Shield Size
-
-Modify the `scale` variable in the code (default: 1.5):
-
-```python
-scale = 1.5  # Increase for larger shields, decrease for smaller
-```
-
-### Gesture Timing
-
-Modify timeout values for gesture sequences:
-
-```python
-# Current: 2 seconds between gestures
-if t1 + timedelta(seconds=2) > t2:  # Change 2 to desired seconds
-```
-
-### Prediction Confidence
-
-Adjust the probability threshold for gesture recognition:
-
-```python
-if (prediction == 'key_1') and (pred_prob > 0.85):  # Change 0.85 to desired threshold
-```
-
-## 📂 Project Structure
-
-### Required Files
-
-#### `utils.py`
-
-Must contain the following functions:
-
-- `mediapipe_detection(frame, model)`: Processes frame with MediaPipe
-- `get_center_lh(frame, results)`: Gets left hand bounding box
-- `get_center_rh(frame, results)`: Gets right hand bounding box
-- `points_detection_hands(results)`: Extracts hand landmarks for ML model
-
-#### `models/model_svm.sav`
-
-Pre-trained SVM model that recognizes:
-
-- `key_1`: First gesture in sequence
-- `key_2`: Second gesture in sequence
-- `key_3`: Third gesture in sequence
-- `key_4`: Deactivation gesture
-
-#### `effects/shield.mp4`
-
-Video file containing the shield effect with black background for transparency.
-
-## 🎯 Gesture Sequence
-
-- In order to activate the shields you have to perform a "magical" sequence of hands position.
+## 🔑 Gesture Sequence
 
 <br>
 <p align="center">
@@ -310,7 +66,7 @@ Video file containing the shield effect with black background for transparency.
 </p>
 <br>
 
-- In order to deactivate the shields you have to execute a "magical" hands position.
+**Activation:** KEY_1 → KEY_2 → KEY_3 (within 3 seconds each)
 
 <br>
 <p align="center">
@@ -318,89 +74,162 @@ Video file containing the shield effect with black background for transparency.
 </p>
 <br>
 
-### Activation Sequence
+**Deactivation:** KEY_4
 
-1. **KEY_1**: Perform first gesture with both hands visible
+## ✨ Features
 
-   - Status: 🔑1✅ 🔑2❌ 🔑3❌
+### 🎭 Background Blur Version (NEW!)
 
-2. **KEY_2**: Within 2 seconds, perform second gesture
+- **Zoom-like Background Blur**: Professional video call appearance
+- **Person Detection**: You stay sharp, background blurs
+- **Adjustable Blur**: Control blur intensity
+- **Real-time Processing**: Smooth 30 FPS performance
 
-   - Status: 🔑1✅ 🔑2✅ 🔑3❌
+### 🛡️ Shield Effects
 
-3. **KEY_3**: Within 2 seconds, perform third gesture
-   - Status: 🔑1✅ 🔑2✅ 🔑3✅
-   - **Shields activate!** 🛡️ ON
+- **Magical Shields**: Appear on your hands when activated
+- **Real-time Tracking**: Shields follow hand movements
+- **Visual Effects**: Glowing borders and magical animations
+- **Gesture Recognition**: ML-powered hand gesture detection
 
-### Deactivation
+### 🎨 Enhanced UI
 
-4. **KEY_4**: Perform deactivation gesture with both hands
-   - All keys reset
-   - Shields deactivate 🛡️ OFF
+- **Welcome Screen**: Beautiful startup interface
+- **Visual Instructions**: Shows gesture images in real-time
+- **Progress Tracking**: See which keys you've activated
+- **Help System**: Press 'h' for gesture guide
+
+## 🔧 Advanced Usage
+
+### Custom Blur Intensity
+
+```bash
+python shield_with_blur.py -b 75  # Higher = more blur
+```
+
+### Different Camera
+
+```bash
+python shield_with_blur.py -c 1  # Use camera ID 1
+```
+
+### Virtual Camera Output
+
+```bash
+python shield_enhanced.py -o virtual  # Requires OBS
+```
+
+## 📦 Installation Details
+
+### Requirements
+
+- Python 3.9+
+- Webcam/Camera
+- Windows/Mac/Linux
+
+### Dependencies
+
+The system uses these main packages:
+
+- **opencv-python**: Camera and image processing
+- **mediapipe**: Hand tracking and person segmentation
+- **scikit-learn**: Gesture classification
+- **numpy**: Numerical operations
+- **pyvirtualcam**: Virtual camera support (optional)
+
+### Verify Installation
+
+```bash
+python verify_installation.py
+```
 
 ## 🐛 Troubleshooting
 
-### Camera Not Found
+### Camera Issues
 
 ```bash
-# Try different camera IDs
-python main.py --camera_id 1  # or 2, 3, etc.
+# Try different camera ID
+python shield_with_blur.py -c 1
+
+# Check available cameras
+python -c "import cv2; print([i for i in range(5) if cv2.VideoCapture(i).isOpened()])"
 ```
 
-### Low Performance
+### Performance Issues
 
-- Reduce camera resolution
-- Lower MediaPipe model complexity (already set to 0)
-- Use `--output window` to disable virtual camera
+```bash
+# Lower blur intensity for better performance
+python shield_with_blur.py -b 25
+
+# Use original version (no blur)
+python shield.py -o window
+```
+
+### Gesture Not Detected
+
+- Ensure both hands are visible
+- Good lighting conditions
+- Clear background
+- Perform gestures slowly and clearly
 
 ### Virtual Camera Not Working
 
-- Install virtual camera driver (e.g., OBS Virtual Camera, v4l2loopback on Linux)
-- Check if virtual camera device is available
-- Use `--output window` to test without virtual camera
+- Install OBS Studio with Virtual Camera
+- Use window mode instead: `-o window`
 
-### Gestures Not Recognized
+## 🎬 Demo
 
-- Ensure both hands are clearly visible
-- Check lighting conditions
-- Lower threshold: `--threshold 0.7`
-- Lower detection confidence: `--det_conf 0.3`
+The system works in real-time:
 
-### Shield Effect Not Visible
+1. **Background Blur**: Your background automatically blurs (like Zoom)
+2. **Gesture Detection**: Perform the 4 key gestures
+3. **Shield Activation**: Magical shields appear on your hands
+4. **Clean View**: When shields are active, UI disappears for immersive experience
 
-- Verify `effects/shield.mp4` exists
-- Ensure shield video has black background
-- Check shield video format (MP4 recommended)
+## 📁 Project Structure
+
+```
+dr-strange-shields/
+├── shield_with_blur.py      # Main app with background blur
+├── shield_enhanced.py       # Enhanced UI version
+├── shield.py               # Original version
+├── launcher.py             # Interactive launcher
+├── utils.py                # Utility functions
+├── requirements.txt        # Dependencies
+├── models/
+│   └── model_svm.sav      # Trained gesture model
+├── effects/
+│   └── shield.mp4         # Shield video effect
+├── images/
+│   ├── position_1.png     # Gesture instruction images
+│   ├── position_2.png
+│   ├── position_3.png
+│   └── position_4.png
+└── README.md
+```
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions welcome! Areas for improvement:
 
-### Areas for Improvement
-
-- [ ] Add more gesture types
-- [ ] Implement gesture training interface
-- [ ] Support custom shield effects
-- [ ] Add sound effects
-- [ ] Implement gesture recording for model training
-- [ ] Add configuration file support
-- [ ] Create GUI for parameter adjustment
+- [ ] More gesture types
+- [ ] Custom shield effects
+- [ ] Sound effects
+- [ ] Mobile app version
+- [ ] Web version
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License - see LICENSE file for details.
 
 ## 🙏 Acknowledgments
 
-- **MediaPipe**: Google's ML framework for hand tracking
+- **MediaPipe**: Google's ML framework
 - **OpenCV**: Computer vision library
-- **pyvirtualcam**: Virtual camera library
 - **Marvel Studios**: Inspiration from Doctor Strange
-
-## 📞 Contact
-
-For questions, issues, or suggestions, please open an issue on GitHub.
 
 ---
 
 **Made with ✨ magic and 🐍 Python**
+
+_Transform your video calls with magical shields and professional background blur!_
